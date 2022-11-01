@@ -1,13 +1,13 @@
 import Typography from "components/typography";
 import { useState, useEffect, useContext } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Box from "components/box";
 import Button from "components/button";
 import Grid from "components/grid";
 import PageContainer from "components/pageContainer";
 import myStyles from './style'
 
-
+import CreditCards from "containers/creditcard";
 
 function CopyRight(props: any) {
 	return (
@@ -23,11 +23,11 @@ function CopyRight(props: any) {
 }
 
 const Home = () => {
-
+    const navigate = useNavigate();
     const classes = myStyles();
 
     const enterSite = (evt, evtId) => {
-        console.log("LOGGING INTO SITE")
+        navigate("/creditcards")
     }
 
 
@@ -47,6 +47,9 @@ const Home = () => {
             </Grid>
         </Box>
         <CopyRight sx={{mt: 6, mb: 4}}/>
+        <Routes>
+            <Route path="creditcards/*" element={<CreditCards />} />
+        </Routes>
     </PageContainer>
   );
 };
