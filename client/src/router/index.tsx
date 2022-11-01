@@ -20,7 +20,7 @@ const AthenaRouter = () => {
                     <Typography variant='h6' noWrap sx={(theme) => ({ flexGrow: 1, display: 'none', [theme.breakpoints.up('sm')]: {display: 'block'}})}>
                         {config.layouts.home.heading}
                     </Typography>
-                    <Typography>Hello</Typography>
+             
                 </Toolbar>
            </AppBar>
            <Routes>
