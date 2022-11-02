@@ -1,13 +1,12 @@
-import Typography from "components/typography";
-import { useState, useEffect, useContext } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import Box from "components/box";
-import Button from "components/button";
-import Grid from "components/grid";
-import PageContainer from "components/pageContainer";
-import myStyles from './style'
 
-import CreditCards from "containers/creditcard";
+import { useNavigate } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+// import Button from "@mui/material/Button";
+import Button from "components/button";
+import Grid from "@mui/material/Grid";
+import Container from "@mui/material/Container";
+import myStyles from './style'
 
 function CopyRight(props: any) {
 	return (
@@ -22,7 +21,7 @@ function CopyRight(props: any) {
 	)
 }
 
-const Home = () => {
+const Landing = () => {
     const navigate = useNavigate();
     const classes = myStyles();
 
@@ -32,9 +31,9 @@ const Home = () => {
 
 
   return (
-   <PageContainer maxWidth={"xs"}>
+   <Container maxWidth={"xs"}>
         <Box sx={(theme) => ({ marginTop: theme.spacing(25), display: 'flex', flexDirection: 'column', alignItems: 'center'})}>
-            <img src={require("assets/images/logo2.png")} className={classes.logo} />
+            <img src={require("assets/images/logo2.png")} className={classes.logo} alt="" />
             <Typography variant="h5" sx={{mt: 2}} textAlign="center">
                 Welcome to Athena Credit Card Manager.
             </Typography>
@@ -47,11 +46,9 @@ const Home = () => {
             </Grid>
         </Box>
         <CopyRight sx={{mt: 6, mb: 4}}/>
-        <Routes>
-            <Route path="creditcards/*" element={<CreditCards />} />
-        </Routes>
-    </PageContainer>
+     
+    </Container>
   );
 };
 
-export default Home;
+export default Landing;

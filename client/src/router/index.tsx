@@ -5,7 +5,8 @@ import Grid from 'components/grid';
 
 import config from "./config";
 
-import Home from './layouts/home';
+import Landing from 'pages/landingPage';
+import CreditCards from 'pages/creditcard';
 
 const AthenaRouter = () => {
 
@@ -23,7 +24,8 @@ const AthenaRouter = () => {
                 </Toolbar>
            </AppBar>
            <Routes>
-                <Route path="/*" element={<Home />} />
+                <Route path="/*" element={<Landing />} />
+								<Route path="/creditcards" element={<CreditCards />} />
            </Routes>
         </>
     )
