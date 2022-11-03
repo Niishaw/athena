@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { v4 } from "uuid";
 
 import Container from "@mui/material/Container"
 import Typography from "@mui/material/Typography";
@@ -10,13 +11,65 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
-import Button from "@mui/material/Button";
+import Button from "components/button";
+import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Paper from "@mui/material/Paper";
+
 import "react-credit-cards/es/styles-compiled.css";
 import { countries } from "./config";
+
+const CardList = ({cards, setCards}) => {
+
+	const removeCreditCard = (value) => {
+		console.log(value)
+		const list = [...cards];
+		list.splice(value, 1)
+		setCards(list)
+
+	}
+
+	if(cards.length === 0) return null
+
+	return(
+		<TableContainer component={Paper} sx={{mt: 10, mb: 15}}>
+			<Typography variant="h4" textAlign="center" sx={{}}>Card Details</Typography>
+			<Table>
+				<TableHead>
+					<TableRow>
+						<TableCell>Country</TableCell>
+						<TableCell align="left">Name</TableCell>
+						<TableCell align="left">Number</TableCell>
+						<TableCell align="left">Expiry Date</TableCell>
+						<TableCell align="left">Action</TableCell>
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{cards.map((card) => (
+						<TableRow
+							key={card.id}
+							sx={{'&:last-child td, &:last-child th': { border: 0 }}}
+						>
+							<TableCell component="th" scope="row">{card.country.name}</TableCell>
+							<TableCell align="left">{card.name}</TableCell>
+							<TableCell align="left">{card.number}</TableCell>
+							<TableCell align="left">{card.expiry}</TableCell>
+							<TableCell align="left"><IconButton onClick={() => removeCreditCard(card.id)}><DeleteIcon/></IconButton></TableCell>
+							
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+		</TableContainer>
+	)
+}
+
 
 const Details = () => {
 
 	const iCreditCard = {
+		id: "",
 		number: "",
 		name: "",
 		expiry: "",
@@ -28,11 +81,12 @@ const Details = () => {
 	const [focus, setFocus] = useState<any>("");
 	const [month, setMonth] = useState<any>("");
 	const [expiry, setExpiry] = useState<any>("");
+	const [cards, setCards] = useState<any>([]);
 
 	useEffect(() => {
 		setCardDetails({...cardDetails, expiry: month.concat(expiry)})
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [expiry, month])
+	}, [expiry, month]);
 
 	const handleSetCountry = (evt, id) => {
 		console.log(id.props.id)
@@ -40,7 +94,7 @@ const Details = () => {
 	}
 
 	const setCardNumber = (evt) => {
-		setCardDetails({...cardDetails, number: evt.target.value});
+		setCardDetails({...cardDetails, number: evt.target.value, id: v4()});
 	}
 
 	const setCardName = (evt) => {
@@ -59,6 +113,33 @@ const Details = () => {
 		setCardDetails({...cardDetails, cvc: evt.target.value})
 	}
 
+	const handleSaveCard = (evt) => {
+
+		if(cards.length === 0){
+			setCards([...cards, cardDetails])
+			setCardDetails(iCreditCard);
+			setExpiry("")
+			setMonth("")
+			setFocus("country")
+		}
+		
+		if(cards.length !== 0){
+			for(let i = 0; i < cards.length; i++){
+				if(cards[i].number === cardDetails.number){
+					window.alert("Card Already Exists");
+					return
+				} else {
+					setCards([...cards, cardDetails])
+					setCardDetails(iCreditCard);
+					setExpiry("")
+					setMonth("")
+					setFocus("country")
+				}
+			}
+		}
+	}
+
+	console.log(cards)
 	console.log(cardDetails)
 
     return (
@@ -110,6 +191,7 @@ const Details = () => {
 									type="tel"
 									name="number"
 									onChange={setCardNumber}
+									value={cardDetails.number}
 									inputProps={{maxLength: 16}}
 									onFocus={(evt) => setFocus(evt.target.name)}
 								/>
@@ -121,6 +203,7 @@ const Details = () => {
 									fullWidth
 									type="tel"
 									name="name"
+									value={cardDetails.name}
 									onChange={setCardName}
 									onFocus={(evt) => setFocus(evt.target.name)}
 								/>
@@ -138,6 +221,7 @@ const Details = () => {
 											<Select
 												label="Month"
 												onChange={handleSetMonth}
+												value={month}
 												name="month"
 												onFocus={(evt) => setFocus(evt.target.name)}
 											>
@@ -165,6 +249,7 @@ const Details = () => {
 											<Select
 												label="Year"
 												name="year"
+												value={expiry}
 												onChange={handleSetExpiry}
 												onFocus={(evt) => setFocus(evt.target.name)}
 											>
@@ -190,6 +275,7 @@ const Details = () => {
 											label="CVV"
 											fullWidth
 											name="cvc"
+											value={cardDetails.cvc}
 											onChange={setCVCNumber}
 											inputProps={{maxLength: 3}}
 											onFocus={(evt) => setFocus(evt.target.name)}
@@ -197,8 +283,9 @@ const Details = () => {
 									</Grid>
 								</Grid>
 						 </Box>
-						 <Button fullWidth variant="contained" sx={{mt: 5}}>Add Card</Button>
+						 <Button fullWidth variant="contained" sx={{mt: 5}} onClick={handleSaveCard}>Add Card</Button>
 						</Container>
+						<CardList cards={cards} setCards={setCards} />
 					 </Grid>
         </Container>
     )
