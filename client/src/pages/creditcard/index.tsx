@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { v4 } from "uuid";
+import { useSnackbar } from 'notistack'
 
 import Container from "@mui/material/Container"
 import Typography from "@mui/material/Typography";
@@ -18,23 +19,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Paper from "@mui/material/Paper";
 
 import "react-credit-cards/es/styles-compiled.css";
-import { countries } from "./config";
+import {eNotificationVariant} from "types/notifications"
+import { countries, bannedCountries } from "./config";
 
 const CardList = ({cards, setCards}) => {
 
-	const removeCreditCard = (value) => {
-		console.log(value)
-		const list = [...cards];
-		list.splice(value, 1)
-		setCards(list)
+	useEffect(() => {
 
+	}, [])
+
+	const removeCreditCard = (value) => {
+		let cardList = cards.filter((card) => card.id !== value)
+		setCards(cardList)
 	}
 
 	if(cards.length === 0) return null
 
 	return(
 		<TableContainer component={Paper} sx={{mt: 10, mb: 15}}>
-			<Typography variant="h4" textAlign="center" sx={{}}>Card Details</Typography>
+			<Typography variant="h4" textAlign="center" >Card Details</Typography>
 			<Table>
 				<TableHead>
 					<TableRow>
@@ -49,14 +52,12 @@ const CardList = ({cards, setCards}) => {
 					{cards.map((card) => (
 						<TableRow
 							key={card.id}
-							sx={{'&:last-child td, &:last-child th': { border: 0 }}}
 						>
 							<TableCell component="th" scope="row">{card.country.name}</TableCell>
 							<TableCell align="left">{card.name}</TableCell>
 							<TableCell align="left">{card.number}</TableCell>
 							<TableCell align="left">{card.expiry}</TableCell>
-							<TableCell align="left"><IconButton onClick={() => removeCreditCard(card.id)}><DeleteIcon/></IconButton></TableCell>
-							
+							<TableCell align="left">{card.country.banned ? <IconButton onClick={() => removeCreditCard(card.id)} color="error"><DeleteIcon/></IconButton> : <IconButton onClick={() => removeCreditCard(card.id)}><DeleteIcon/></IconButton> }</TableCell>
 						</TableRow>
 					))}
 				</TableBody>
@@ -65,8 +66,9 @@ const CardList = ({cards, setCards}) => {
 	)
 }
 
-
 const Details = () => {
+
+	const { enqueueSnackbar } = useSnackbar();
 
 	const iCreditCard = {
 		id: "",
@@ -74,7 +76,7 @@ const Details = () => {
 		name: "",
 		expiry: "",
 		cvc: "",
-		country: {name: "", code: ""}
+		country: {name: "", code: "", banned: false}
 	}
 
 	const [cardDetails, setCardDetails] = useState<any>(iCreditCard);
@@ -89,8 +91,16 @@ const Details = () => {
 	}, [expiry, month]);
 
 	const handleSetCountry = (evt, id) => {
-		console.log(id.props.id)
-		setCardDetails({...cardDetails, country: {name: evt.target.value, code: id.props.id}});
+		
+		for(let i = 0; i < bannedCountries.length; i++){
+			if(bannedCountries[i].code === id.props.id){
+				setCardDetails({...cardDetails, country: {name: evt.target.value, code: id.props.id, banned: true}});
+				return;
+			}
+			
+		}
+
+		setCardDetails({...cardDetails, country: {name: evt.target.value, code: id.props.id, banned: false}});
 	}
 
 	const setCardNumber = (evt) => {
@@ -113,11 +123,53 @@ const Details = () => {
 		setCardDetails({...cardDetails, cvc: evt.target.value})
 	}
 
+	console.log(cardDetails)
+
 	const handleSaveCard = (evt) => {
+
+		if(cardDetails.country.name === ""){
+			enqueueSnackbar("Please Select a Country", {variant: eNotificationVariant.Error})
+			return
+		}
+
+		if(cardDetails.number === ""){
+			enqueueSnackbar("Please Provide a Card Number", {variant: eNotificationVariant.Error})
+			return
+		}
+
+		if(cardDetails.name === ""){
+			enqueueSnackbar("Please Provide Name for Card", {variant: eNotificationVariant.Error})
+			return
+		}
+
+		if(expiry === ""){
+			enqueueSnackbar("Please Provide Expiry Details", {variant: eNotificationVariant.Error})
+			return
+		}
+
+		if(month === ""){
+			enqueueSnackbar("Please Provide Expiry Details", {variant: eNotificationVariant.Error})
+			return
+		}
+
+		if(cardDetails.cvc === ""){
+			enqueueSnackbar("Please Provide the CVC Number", {variant: eNotificationVariant.Error})
+			return
+		}
+
+		// let storedCard = JSON.stringify(cards);
+		// localStorage[cards] = storedCard
+
+		for(let i = 0; i < bannedCountries.length; i++){
+			if(cardDetails.country.code === bannedCountries[i].code){
+				setCardDetails({...cardDetails, country: {banned: true}});
+			}
+		}
 
 		if(cards.length === 0){
 			setCards([...cards, cardDetails])
 			setCardDetails(iCreditCard);
+			enqueueSnackbar("Card has been added", {variant: eNotificationVariant.Success});
 			setExpiry("")
 			setMonth("")
 			setFocus("country")
@@ -126,11 +178,12 @@ const Details = () => {
 		if(cards.length !== 0){
 			for(let i = 0; i < cards.length; i++){
 				if(cards[i].number === cardDetails.number){
-					window.alert("Card Already Exists");
+					enqueueSnackbar("Card Already Exists", {variant: eNotificationVariant.Error})
 					return
 				} else {
 					setCards([...cards, cardDetails])
 					setCardDetails(iCreditCard);
+					enqueueSnackbar("Card has been added", {variant: eNotificationVariant.Success});
 					setExpiry("")
 					setMonth("")
 					setFocus("country")
@@ -138,9 +191,6 @@ const Details = () => {
 			}
 		}
 	}
-
-	console.log(cards)
-	console.log(cardDetails)
 
     return (
         <Container maxWidth="lg" sx={{mt:15}}>
