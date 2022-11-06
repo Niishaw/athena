@@ -1,7 +1,8 @@
 # athena
 
 ## Installation
-When running the installs for client, please use <b>npm i --legacy-peer-deps</b>
+When running the installs for client, please use <b>npm i --legacy-peer-deps</b> .
+Remember to CD into the client folder before running npm i
 
 ## Setting Banned Countries
 You can set <b>banned</b> cards inside of the config by simply copying and pasting which country you want to be banned.
