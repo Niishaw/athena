@@ -1,5 +1,9 @@
 export const bannedCountries = [
 	{"name": "Afghanistan", "code": "AF"}, 
+	{"name": "Antarctica", "code": "AQ"}, 
+	{"name": "Aruba", "code": "AW"}, 
+
+
 ];
 
 export const countries = [ 

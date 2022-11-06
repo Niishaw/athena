@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { v4 } from "uuid";
 import { useSnackbar } from 'notistack'
 
@@ -25,7 +26,23 @@ import { countries, bannedCountries } from "./config";
 const CardList = ({cards, setCards}) => {
 
 	useEffect(() => {
+		let storedCards = localStorage["cards"]
+		if(storedCards === undefined){
+			storedCards = [];
+		}
+		let jsonStoredCards = JSON.parse(storedCards);
 
+		for(let i = 0; i < jsonStoredCards.length; i++){
+			for(let c = 0; c < bannedCountries.length; c ++){
+				console.log(bannedCountries[c].code);
+				if(jsonStoredCards[i].country.code === bannedCountries[c].code){
+					jsonStoredCards[i].country.banned = true;
+					setCards(jsonStoredCards)
+				}
+			}
+			
+		}
+		setCards(jsonStoredCards)
 	}, [])
 
 	const removeCreditCard = (value) => {
@@ -69,6 +86,7 @@ const CardList = ({cards, setCards}) => {
 const Details = () => {
 
 	const { enqueueSnackbar } = useSnackbar();
+	const navigate = useNavigate();
 
 	const iCreditCard = {
 		id: "",
@@ -125,7 +143,7 @@ const Details = () => {
 
 	console.log(cardDetails)
 
-	const handleSaveCard = (evt) => {
+	const handleSetCard = (evt) => {
 
 		if(cardDetails.country.name === ""){
 			enqueueSnackbar("Please Select a Country", {variant: eNotificationVariant.Error})
@@ -157,9 +175,6 @@ const Details = () => {
 			return
 		}
 
-		// let storedCard = JSON.stringify(cards);
-		// localStorage[cards] = storedCard
-
 		for(let i = 0; i < bannedCountries.length; i++){
 			if(cardDetails.country.code === bannedCountries[i].code){
 				setCardDetails({...cardDetails, country: {banned: true}});
@@ -190,6 +205,25 @@ const Details = () => {
 				}
 			}
 		}
+	}
+
+	console.log(cards);
+
+	const handleSaveCards = () => {
+
+		for(let i = 0; i < cards.length; i++){
+				if(cards[i].country.banned){
+					enqueueSnackbar("One or more cards are listed in a banned country, please delete the card before saving.", {variant: eNotificationVariant.Error});
+					return
+				}
+		}
+
+		let storedCard = JSON.stringify(cards);
+		localStorage["cards"] = storedCard
+		enqueueSnackbar("Cards saved to local storage", {variant: eNotificationVariant.Success});
+
+		navigate("/")
+
 	}
 
     return (
@@ -306,7 +340,6 @@ const Details = () => {
 												<MenuItem value="">
 													<em></em>
 												</MenuItem>
-												<MenuItem value="22">2022</MenuItem>
 												<MenuItem value="23">2023</MenuItem>
 												<MenuItem value="24">2024</MenuItem>
 												<MenuItem value="25">2025</MenuItem>
@@ -315,6 +348,7 @@ const Details = () => {
 												<MenuItem value="28">2028</MenuItem>
 												<MenuItem value="29">2029</MenuItem>
 												<MenuItem value="30">2030</MenuItem>
+												<MenuItem value="22">2031</MenuItem>
 											</Select>
 										</FormControl>
 									</Grid>
@@ -333,7 +367,8 @@ const Details = () => {
 									</Grid>
 								</Grid>
 						 </Box>
-						 <Button fullWidth variant="contained" sx={{mt: 5}} onClick={handleSaveCard}>Add Card</Button>
+						 <Button fullWidth variant="contained" sx={{mt: 5}} onClick={handleSetCard}>Set Card</Button>
+						 <Button fullWidth variant="contained" sx={{mt: 3}} onClick={handleSaveCards}>Save Cards</Button>
 						</Container>
 						<CardList cards={cards} setCards={setCards} />
 					 </Grid>
