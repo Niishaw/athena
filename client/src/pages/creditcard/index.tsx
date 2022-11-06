@@ -97,6 +97,8 @@ const Details = () => {
 		country: {name: "", code: "", banned: false}
 	}
 
+	const isOnlyNumbers = (str) =>  /^[0-9\b]+$/.test(str);
+
 	const [cardDetails, setCardDetails] = useState<any>(iCreditCard);
 	const [focus, setFocus] = useState<any>("");
 	const [month, setMonth] = useState<any>("");
@@ -104,7 +106,7 @@ const Details = () => {
 	const [cards, setCards] = useState<any>([]);
 
 	useEffect(() => {
-		setCardDetails({...cardDetails, expiry: month.concat(expiry)})
+		setCardDetails({...cardDetails, expiry: month.concat(expiry)});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [expiry, month]);
 
@@ -116,70 +118,70 @@ const Details = () => {
 				return;
 			}
 			
-		}
+		};
 
 		setCardDetails({...cardDetails, country: {name: evt.target.value, code: id.props.id, banned: false}});
-	}
+	};
 
 	const setCardNumber = (evt) => {
-		setCardDetails({...cardDetails, number: evt.target.value, id: v4()});
-	}
+		if(isOnlyNumbers(evt.target.value) || evt.target.value === ""){
+			setCardDetails({...cardDetails, number: evt.target.value, id: v4()});
+		}
+	};
 
 	const setCardName = (evt) => {
 		setCardDetails({...cardDetails, name: evt.target.value});
-	}
+	};
 
 	const handleSetMonth = (evt: SelectChangeEvent) => {
 		setMonth(evt.target.value);
-	}
+	};
 
 	const handleSetExpiry = (evt: SelectChangeEvent) => {
 		setExpiry(evt.target.value);
-	}
+	};
 
 	const setCVCNumber = (evt) => {
 		setCardDetails({...cardDetails, cvc: evt.target.value})
-	}
-
-	console.log(cardDetails)
+	};
 
 	const handleSetCard = (evt) => {
 
 		if(cardDetails.country.name === ""){
 			enqueueSnackbar("Please Select a Country", {variant: eNotificationVariant.Error})
 			return
-		}
+		};
 
 		if(cardDetails.number === ""){
 			enqueueSnackbar("Please Provide a Card Number", {variant: eNotificationVariant.Error})
 			return
-		}
+		};
 
 		if(cardDetails.name === ""){
 			enqueueSnackbar("Please Provide Name for Card", {variant: eNotificationVariant.Error})
 			return
-		}
+		};
 
 		if(expiry === ""){
 			enqueueSnackbar("Please Provide Expiry Details", {variant: eNotificationVariant.Error})
 			return
-		}
+		};
 
 		if(month === ""){
 			enqueueSnackbar("Please Provide Expiry Details", {variant: eNotificationVariant.Error})
 			return
-		}
+		};
 
 		if(cardDetails.cvc === ""){
 			enqueueSnackbar("Please Provide the CVC Number", {variant: eNotificationVariant.Error})
 			return
-		}
+		};
 
 		for(let i = 0; i < bannedCountries.length; i++){
 			if(cardDetails.country.code === bannedCountries[i].code){
 				setCardDetails({...cardDetails, country: {banned: true}});
 			}
-		}
+		};
 
 		if(cards.length === 0){
 			setCards([...cards, cardDetails])
@@ -188,7 +190,7 @@ const Details = () => {
 			setExpiry("")
 			setMonth("")
 			setFocus("country")
-		}
+		};
 		
 		if(cards.length !== 0){
 			for(let i = 0; i < cards.length; i++){
@@ -205,9 +207,7 @@ const Details = () => {
 				}
 			}
 		}
-	}
-
-	console.log(cards);
+	};
 
 	const handleSaveCards = () => {
 
@@ -272,7 +272,7 @@ const Details = () => {
 								<TextField 
 									size="small"
 									fullWidth
-									type="tel"
+									type="text"
 									name="number"
 									onChange={setCardNumber}
 									value={cardDetails.number}
