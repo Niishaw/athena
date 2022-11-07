@@ -28,7 +28,7 @@ const CardList = ({cards, setCards}) => {
 	useEffect(() => {
 		let storedCards = localStorage["cards"]
 		if(storedCards === undefined){
-			storedCards = [];
+			storedCards = "[]";
 		}
 		let jsonStoredCards = JSON.parse(storedCards);
 
@@ -156,6 +156,11 @@ const Details = () => {
 			enqueueSnackbar("Please Provide a Card Number", {variant: eNotificationVariant.Error})
 			return
 		};
+
+		if(cardDetails.number.length < 16){
+			enqueueSnackbar("Card Number must contain 16", {variant: eNotificationVariant.Error})
+			return
+		}
 
 		if(cardDetails.name === ""){
 			enqueueSnackbar("Please Provide Name for Card", {variant: eNotificationVariant.Error})
